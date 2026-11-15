@@ -19,12 +19,20 @@
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
-    [string]$ConfigPath = (Join-Path $PSScriptRoot 'config.json'),
-    [string]$LogDirectory = (Join-Path $PSScriptRoot 'logs'),
+    [string]$ConfigPath,
+    [string]$LogDirectory,
     [switch]$NoNotification
 )
 
 $ErrorActionPreference = 'Continue'
+
+# En Windows PowerShell 5.1, $PSScriptRoot está vacío en los valores por defecto de param()
+# cuando el script se lanza con "powershell -File" (así lo hace la tarea programada).
+# Por eso las rutas por defecto se calculan aquí, dentro del cuerpo del script.
+$scriptDir = $PSScriptRoot
+if (-not $scriptDir) { $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition }
+if (-not $ConfigPath)   { $ConfigPath   = Join-Path $scriptDir 'config.json' }
+if (-not $LogDirectory) { $LogDirectory = Join-Path $scriptDir 'logs' }
 
 # Cualquier error que impida arrancar queda en logs\error.log (si no, la tarea fallaría en silencio)
 trap {
@@ -37,7 +45,7 @@ trap {
     exit 1
 }
 
-Import-Module (Join-Path $PSScriptRoot 'PCOptimizer.psm1') -Force -ErrorAction Stop
+Import-Module (Join-Path $scriptDir 'PCOptimizer.psm1') -Force -ErrorAction Stop
 
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
     [Security.Principal.WindowsBuiltInRole]::Administrator)
