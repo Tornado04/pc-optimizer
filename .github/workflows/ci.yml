@@ -23,6 +23,16 @@ jobs:
           Install-Module Pester -MinimumVersion 5.5.0 -Force -SkipPublisherCheck -Scope CurrentUser
           Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
 
+      - name: Comprobar sintaxis de todos los scripts
+        run: |
+          $bad = 0
+          Get-ChildItem -Recurse -Include *.ps1, *.psm1 | ForEach-Object {
+            $errs = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$null, [ref]$errs) | Out-Null
+            foreach ($e in $errs) { Write-Host "$($_.Name):$($e.Extent.StartLineNumber) $($e.Message)"; $bad++ }
+          }
+          if ($bad) { throw "$bad errores de sintaxis" }
+
       - name: Análisis estático
         run: |
           $issues = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Error

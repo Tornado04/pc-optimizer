@@ -66,7 +66,7 @@ New-Item -ItemType Directory -Path (Join-Path $InstallDir 'logs') -Force | Out-N
 
 # Solo administradores y SYSTEM pueden modificar los scripts (se ejecutan elevados)
 $icaclsOut = & icacls.exe $InstallDir /inheritance:r /grant:r '*S-1-5-32-544:(OI)(CI)F' '*S-1-5-18:(OI)(CI)F' '*S-1-5-32-545:(OI)(CI)RX' 2>&1
-if ($LASTEXITCODE -ne 0) { Write-Warning "icacls devolvió $LASTEXITCODE: $icaclsOut" }
+if ($LASTEXITCODE -ne 0) { Write-Warning "icacls devolvió ${LASTEXITCODE}: $icaclsOut" }
 
 # --- Tarea programada -------------------------------------------------------
 $script = Join-Path $InstallDir 'Optimize-PC.ps1'
