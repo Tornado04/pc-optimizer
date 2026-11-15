@@ -40,3 +40,28 @@ jobs:
 
       - name: Simulación completa (-WhatIf)
         run: ./src/Optimize-PC.ps1 -WhatIf -Verbose -NoNotification
+
+  install:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar y ejecutar la tarea programada
+        shell: powershell
+        run: ./install.ps1 -RunNow -NoPause -DelaySeconds 0
+
+      - name: Mostrar resultado
+        if: always()
+        shell: powershell
+        run: |
+          Get-ScheduledTask PCOptimizer | Format-List TaskName, State, @{n='User';e={$_.Principal.UserId}}, @{n='RunLevel';e={$_.Principal.RunLevel}}
+          Get-ScheduledTaskInfo PCOptimizer | Format-List LastRunTime, LastTaskResult
+          Get-ChildItem C:\ProgramData\PCOptimizer -Recurse | Format-Table FullName, Length
+          Get-Content C:\ProgramData\PCOptimizer\logs\*.log -ErrorAction SilentlyContinue
+
+      - name: Desinstalar
+        shell: powershell
+        run: |
+          ./uninstall.ps1
+          if (Get-ScheduledTask PCOptimizer -ErrorAction SilentlyContinue) { throw 'La tarea sigue registrada' }
+          if (Test-Path C:\ProgramData\PCOptimizer) { throw 'La carpeta sigue existiendo' }

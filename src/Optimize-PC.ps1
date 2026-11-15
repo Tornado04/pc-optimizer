@@ -25,7 +25,19 @@ param(
 )
 
 $ErrorActionPreference = 'Continue'
-Import-Module (Join-Path $PSScriptRoot 'PCOptimizer.psm1') -Force
+
+# Cualquier error que impida arrancar queda en logs\error.log (si no, la tarea fallaría en silencio)
+trap {
+    try {
+        if (-not (Test-Path -LiteralPath $LogDirectory)) { New-Item -ItemType Directory -Path $LogDirectory -Force | Out-Null }
+        $msg = '{0:yyyy-MM-dd HH:mm:ss} [FATAL] {1}{2}{3}' -f (Get-Date), $_.Exception.Message, [Environment]::NewLine, $_.ScriptStackTrace
+        Add-Content -LiteralPath (Join-Path $LogDirectory 'error.log') -Value $msg -Encoding UTF8
+    } catch { }
+    Write-Error $_
+    exit 1
+}
+
+Import-Module (Join-Path $PSScriptRoot 'PCOptimizer.psm1') -Force -ErrorAction Stop
 
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
     [Security.Principal.WindowsBuiltInRole]::Administrator)
