@@ -1,0 +1,23 @@
+{
+    "tempCleanup": {
+        "enabled": true,
+        "olderThanDays": 2,
+        "paths": [
+            "%TEMP%",
+            "%SystemRoot%\\Temp",
+            "%LOCALAPPDATA%\\CrashDumps",
+            "%LOCALAPPDATA%\\Microsoft\\Windows\\INetCache",
+            "%ProgramData%\\Microsoft\\Windows\\WER\\ReportArchive",
+            "%ProgramData%\\Microsoft\\Windows\\WER\\ReportQueue"
+        ]
+    },
+    "recycleBin": { "enabled": false },
+    "dnsFlush": { "enabled": true },
+    "windowsUpdateCache": { "enabled": false, "olderThanDays": 10 },
+    "powerPlan": { "enabled": false, "plan": "HighPerformance" },
+    "closeProcesses": { "enabled": false, "names": [] },
+    "ssdTrim": { "enabled": true, "intervalDays": 7 },
+    "lowDiskWarningGB": 15,
+    "notification": { "enabled": true },
+    "logRetentionDays": 30
+}
